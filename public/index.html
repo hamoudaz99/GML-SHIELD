@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GML-SHIELD — Missions sécurisées</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div><p class="eyebrow">GREENMOVE LOGISTICS</p><h1>GML-SHIELD</h1></div>
+      <div id="session-area" hidden><span id="session-label"></span><button id="logout-button" class="secondary">Se déconnecter</button></div>
+    </header>
+    <main>
+      <section id="login-panel" class="panel login-panel">
+        <h2>Connexion</h2>
+        <p class="muted">Accès réservé aux utilisateurs autorisés.</p>
+        <form id="login-form">
+          <label>Adresse e-mail<input id="email" name="email" type="email" autocomplete="username" required maxlength="254"></label>
+          <label>Mot de passe<input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200"></label>
+          <button type="submit">Se connecter</button>
+        </form>
+        <p id="login-error" class="error" role="alert"></p>
+      </section>
+      <section id="app-panel" hidden>
+        <div class="welcome"><div><p class="eyebrow">ESPACE DE TRAVAIL</p><h2 id="page-title">Missions</h2></div><p id="role-label" class="badge"></p></div>
+        <div id="notice" class="notice" role="status" hidden></div>
+        <section id="dispatcher-panel" class="panel" hidden>
+          <h3>Créer une mission</h3>
+          <form id="mission-form" class="mission-form">
+            <label>Titre<input name="title" required maxlength="120"></label>
+            <label>Destination<input name="destination" required maxlength="300"></label>
+            <label>Chauffeur<select name="driver_id" required></select></label>
+            <label>Code d’accès secret<input name="secret_code" required maxlength="200" autocomplete="off"></label>
+            <button type="submit">Assigner la mission</button>
+          </form>
+        </section>
+        <section class="panel">
+          <div class="section-heading"><h3 id="list-title">Missions</h3><button id="refresh-button" class="secondary">Actualiser</button></div>
+          <div id="mission-list" class="mission-list"><p class="muted">Aucune mission à afficher.</p></div>
+        </section>
+        <section id="admin-panel" class="panel" hidden><h3>Journal d’audit</h3><div id="audit-list" class="audit-list"></div></section>
+      </section>
+    </main>
+    <footer>Prototype interne — les données affichées sont destinées aux essais.</footer>
+  </body>
+</html>
