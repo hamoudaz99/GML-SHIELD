@@ -9,7 +9,7 @@ import { openDatabase } from '../src/database.js';
 import { hashPassword } from '../src/security.js';
 import { startServer } from '../src/server.js';
 
-let directory; let db; let server; let origin; let dispatcher; let driver; let otherDriver;
+let directory; let db; let server; let origin; let dispatcher; let driver; let otherDriver;let serverDb;
 const password = 'Correct horse battery 2030!';
 
 async function createUser(email, role) {
@@ -37,7 +37,7 @@ before(async () => {
   process.env.GML_AUDIT_KEY_B64 = randomBytes(32).toString('base64');
   process.env.GML_SESSION_KEY_B64 = randomBytes(32).toString('base64');
   db = openDatabase(join(directory, 'test.sqlite'));
-  ({ server } = startServer({ port: 0, host: '127.0.0.1', databasePath: join(directory, 'test.sqlite'), uploadDir: join(directory, 'uploads'), sessionTtlMs: 900_000 }));
+  ({ server, db: serverDb } = startServer({ port: 0, host: '127.0.0.1', databasePath: join(directory, 'test.sqlite'), uploadDir: join(directory, 'uploads'), sessionTtlMs: 900_000 }));
   await once(server, 'listening');
   origin = `http://127.0.0.1:${server.address().port}`;
   dispatcher = await createUser('dispatcher@gml.example', 'DISPATCHER');
@@ -45,9 +45,30 @@ before(async () => {
   otherDriver = await createUser('other@gml.example', 'DRIVER');
 });
 
-after(() => {
-  server?.close(); db?.close();
-  if (directory) rmSync(directory, { recursive: true, force: true });
+after(async () => {
+  // Attendre la fermeture du serveur avant de fermer ses ressources.
+  if (server?.listening) {
+    await new Promise((resolve, reject) => {
+      server.close((error) => {
+        if (error) reject(error);
+        else resolve();
+      });
+    });
+  }
+
+  // Fermer les deux connexions SQLite.
+  serverDb?.close();
+  db?.close();
+
+  // Supprimer les fichiers après libération des ressources.
+  if (directory) {
+    rmSync(directory, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 100,
+    });
+  }
 });
 
 test('authenticates users, isolates assignments, encrypts access codes and records actions', async () => {

@@ -164,6 +164,14 @@ function getMissionForUser(db, missionId, user) {
   return undefined;
 }
 
+/**
+ * Construit la réponse destinée au client avec les champs explicitement choisis.
+ * Cela évite d'exposer automatiquement les colonnes internes de la base.
+ * Le code d'accès reste absent par défaut ; includeSecret permet sa révélation.
+ * L'appelant doit vérifier les droits avant d'activer cette option :
+ * cette fonction ne réalise pas elle-même le contrôle d'accès.
+ */
+
 function publicMission(row, includeSecret = false, encryptionKey = null) {
   return {
     id: row.id, title: row.title, destination: row.destination, status: row.status,
